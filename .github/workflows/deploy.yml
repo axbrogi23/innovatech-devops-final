@@ -43,7 +43,7 @@ jobs:
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.AWS_EC2_BACK_IP }}
-          username: ubuntu
+          username: ec2-user
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
             sudo docker stop innovatech-backend || true
@@ -55,7 +55,7 @@ jobs:
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.AWS_EC2_FRONT_IP }}
-          username: ubuntu
+          username: ec2-user
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
             sudo docker stop innovatech-frontend || true
