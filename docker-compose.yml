@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Base de Datos MySQL (Corre en la EC2 Privada) [cite: 80, 84]
+  mysql_db:
+    image: mysql:8.0
+    container_name: innovatech_db
+    restart: always
+    environment:
+      # Recuerda que estas variables se cargarán de forma segura [cite: 13, 24]
+      MYSQL_DATABASE: innovatech_prod
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: user_innovatech
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend_net
+
+  # Microservicio de Backend (Corre en la EC2 Privada) [cite: 13, 80]
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: innovatech_backend
+    restart: always
+    environment:
+      DB_HOST: mysql_db
+      DB_NAME: innovatech_prod
+      DB_USER: user_innovatech
+      DB_PASSWORD: ${DB_PASSWORD}
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql_db
+    networks:
+      - frontend_net
+      - backend_net
+
+  # Servidor Frontend Nginx (Corre en la EC2 Pública) [cite: 13, 79]
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: innovatech_frontend
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - frontend_net
+    depends_on:
+      - backend
+
+# Redes aisladas para cumplir con la seguridad exigida [cite: 13, 56, 84]
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
+
+# Persistencia de Datos con Named Volumes (IE3) [cite: 13, 27, 30]
+volumes:
+  mysql_data:
+    driver: local

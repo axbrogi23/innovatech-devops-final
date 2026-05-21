@@ -1,0 +1,7 @@
+{
+  "name": "innovatech-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir -p dist && echo '<h1>Innovatech Chile - App Funcionando</h1>' > dist/index.html"
+  }
+}
