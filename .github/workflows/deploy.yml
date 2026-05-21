@@ -31,34 +31,3 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/innovatech-frontend:latest
-
-  deploy-to-ec2:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v3
-
-      - name: Desplegar Backend en AWS EC2
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.AWS_EC2_BACK_IP }}
-          username: ec2-user
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
-          script: |
-            sudo docker stop innovatech-backend || true
-            sudo docker rm innovatech-backend || true
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/innovatech-backend:latest
-            sudo docker run -d --name innovatech-backend -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/innovatech-backend:latest
-
-      - name: Desplegar Frontend en AWS EC2
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.AWS_EC2_FRONT_IP }}
-          username: ec2-user
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
-          script: |
-            sudo docker stop innovatech-frontend || true
-            sudo docker rm innovatech-frontend || true
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/innovatech-frontend:latest
-            sudo docker run -d --name innovatech-frontend -p 80:80 ${{ secrets.DOCKERHUB_USERNAME }}/innovatech-frontend:latest
